@@ -661,9 +661,9 @@ class TradeWave(BaseTrade):
 
             # 掉收益率进行计算，如果大于0，就是盈亏，小于0就是亏损
             if m > 0:
-                self.pm.update(op="reset")  # 更新'每次下单金额'
-            elif m <= 0:
                 self.pm.update(op="increase")  # 更新'每次下单金额'
+            elif m <= 0:
+                self.pm.update(op="reset")  # 更新'每次下单金额'
                 # 禁止开仓 (默认10次)
                 self.strategy.trading_toggle.close()
 
@@ -1253,35 +1253,24 @@ class AnalysisWave(BaseAnalysis):
 
 class MyBasePositionManager(BasePositionManager):
     
-    variables = []
-
-    def __init__(self, strategy_inst):
-        super.__init__(strategy_inst)
-
-    def update_parameters_settings(self, parameters_settings: dict):
-        super.update_parameters_settings(parameters_settings)
-
     def update(self, op="increase"):
         """
             更新'每次下单金额' (更改下单仓位):
-                止盈: '每次下单金额'恢复到初始值
-                止损: '每次下单金额'开始翻倍增加 (马丁加仓)
+                盈利: '每次下单金额'开始翻倍增加
+                亏损: '每次下单金额'保持当前仓位
+                多次: '若出现连续盈利 max_increase_times，则下笔交易的仓位回归到初始仓位'
         """
 
-        # self.GF.Logger.log(f"op:{op}", 70)
         if op == "increase":
-            # 代表策略'止损'了
+            
             self.increase()
-            self.GF.Logger.log(f"[止损] (连续次数:{self.increase_times})", 100)
+            self.GF.Logger.log(f"[盈利] (连续次数:{self.increase_times})", 100)
         elif op == "reset":
-            # 代表策略'止盈'了
-            # self.reset()
-            # 亏损仓位保持不变
-            self.GF.Logger.log(f"[止盈]", 100)
-        self.GF.Logger.log(f"[更新'每次下单金额'] self.strategy.quote_qty:{self.strategy.trade.pm.quote_qty}", 100)
 
-    def reset(self):
-        super.reset()
+            # 亏损仓位保持不变
+            self.GF.Logger.log(f"[亏损仓位保持不变]", 100)
+        
+        self.GF.Logger.log(f"[更新'每次下单金额'] self.strategy.quote_qty:{self.strategy.trade.pm.quote_qty}", 100)
 
     def increase(self):
         "增加仓位(增加每次下单金额)"
