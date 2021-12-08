@@ -664,6 +664,7 @@ class TradeWave(BaseTrade):
                 self.pm.update(op="increase")  # 更新'每次下单金额'
             elif m <= 0:
                 self.pm.update(op="keep")  # 更新'每次下单金额'
+               # self.pm.update(op="reset")  # 更新'每次下单金额'
                 # 禁止开仓 (默认10次)
                 self.strategy.trading_toggle.close()
 
@@ -1269,6 +1270,11 @@ class MyBasePositionManager(BasePositionManager):
 
             # 亏损仓位保持不变
             self.GF.Logger.log(f"[维持仓位]", 100)
+        elif op == "reset":
+            # 代表策略'止盈'了
+            self.reset()
+            self.GF.Logger.log(f"[止盈]", 100)
+
         
         self.GF.Logger.log(f"[更新'每次下单金额'] self.strategy.quote_qty:{self.strategy.trade.pm.quote_qty}", 100)
 
