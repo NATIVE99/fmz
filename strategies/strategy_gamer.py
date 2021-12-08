@@ -1268,7 +1268,7 @@ class MyBasePositionManager(BasePositionManager):
         elif op == "reset":
 
             # 亏损仓位保持不变
-            self.GF.Logger.log(f"[亏损仓位保持不变]", 100)
+            self.GF.Logger.log(f"[维持仓位]", 100)
         
         self.GF.Logger.log(f"[更新'每次下单金额'] self.strategy.quote_qty:{self.strategy.trade.pm.quote_qty}", 100)
 
